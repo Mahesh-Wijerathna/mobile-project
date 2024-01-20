@@ -1,20 +1,67 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../config.dart';
+import 'dart:developer' as dev;
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+   RegisterPage({Key? key}) : super(key: key);
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+   TextEditingController _nameController = TextEditingController();
+   TextEditingController _addressController = TextEditingController();
+   TextEditingController _phoneNumberController = TextEditingController();
+   TextEditingController _usernameController = TextEditingController();
+   TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    void registerUser() async {
+      if (_nameController.text.isNotEmpty &&
+          _addressController.text.isNotEmpty &&
+          _phoneNumberController.text.isNotEmpty &&
+          _usernameController.text.isNotEmpty &&
+          _passwordController.text.isNotEmpty) {
+        var regBody = {
+          "email": _usernameController.text,
+          "password": _passwordController.text,
+          "userType": "customer"
+        };
+
+        var customerBody = {
+          "name": _nameController.text,
+          "address": _addressController.text,
+          "phoneNumber": _phoneNumberController.text,
+          "username": _usernameController.text,
+        };
+
+        var response = await http.post(Uri.parse(registration),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(regBody));
+
+        var customerResponse = await http.post(Uri.parse(addCustomer),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(customerBody));
+
+        var jsonresponse = jsonDecode(response.body);
+        dev.log(jsonresponse.toString());
+        var customerJsonResponse = jsonDecode(customerResponse.body);
+        dev.log(customerJsonResponse.toString());
+
+        if (jsonresponse['status'] == true &&
+            customerJsonResponse['status'] == true) {
+          dev.log("User Registered");
+          Navigator.pushNamed(context, '/customer_dashboard');
+        } else {
+          dev.log("User Registration Failed");
+        }
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Customer Registration'),
@@ -23,7 +70,6 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Form(
-            key: _formKey,
             child: Column(
               children: [
                 TextFormField(
@@ -34,6 +80,32 @@ class _RegisterPageState extends State<RegisterPage> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10.0),
+                TextFormField(
+                  controller: _addressController,
+                  decoration: const InputDecoration(
+                    labelText: 'Address',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your address';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10.0),
+                TextFormField(
+                  controller: _phoneNumberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your phone number';
                     }
                     return null;
                   },
@@ -68,10 +140,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 20.0),
                 ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Handle registration logic here
-                      // Use the values from the controllers to create a customer account
-                    }
+                    // Handle registration logic here
+                    // Use the values from the controllers to create a customer account
+                    registerUser();
+
+                    // Perform registration API call or database operation
                   },
                   child: const Text('Register'),
                 ),
@@ -85,13 +158,15 @@ class _RegisterPageState extends State<RegisterPage> {
         children: [
           TextButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/'); // Replace with your login page route
+              Navigator.pushNamed(
+                  context, '/'); // Replace with your login page route
             },
             child: const Text('Already have an account? Login'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/shop_signup'); // Replace with your shop signup page route
+              Navigator.pushNamed(context,
+                  '/shop_signup'); // Replace with your shop signup page route
             },
             child: const Text('Sign up as a shop'),
           ),

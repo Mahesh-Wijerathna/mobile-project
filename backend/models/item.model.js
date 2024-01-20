@@ -1,36 +1,45 @@
+const db = require('../config/db');
+//const UserModel = require("./user.model");
 const mongoose = require('mongoose');
+const ShopModel = require('./shop.model');
+const { Schema } = mongoose;
 
-// Define the item schema
-const itemSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true, // Remove extra whitespace from name
-  },
-  description: {
-    type: String,
-    default: '',
-  },
-  photos: [
-    {
-      type: String, // Store image URLs initially
-      required: true,
+const ItemSchema = new Schema({
+    
+    name: {
+        type: String,
+        required: true
     },
-  ],
-  shopId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Shop', // Reference the Shop model
-    required: true,
-  },
-  longitude: {
-    type: Number,
-    required: true,
-  },
-  latitude: {
-    type: Number,
-    required: true,
-  },
-});
+    description: {
+        type: String,
+        required: true
+    },
+    itemType: {
+        type: String,
+        //required: true
+    },
 
-// Export the Mongoose model
-module.exports = mongoose.model('Item', itemSchema);
+    price:{
+        type:String,
+        required:true
+    },
+    shopName:{
+        type:String,
+        //required:true
+
+    },
+    // location longitude and latitude as array
+    location:{
+        type:[Number],
+        //required:true
+    },
+
+    shopId:{
+        type: Schema.Types.ObjectId,
+        ref: ShopModel.modelName
+        //required:false
+    }
+},{timestamps:true});
+
+const ItemModel = db.model('item',ItemSchema);
+module.exports = ItemModel;

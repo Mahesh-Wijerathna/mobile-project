@@ -4,9 +4,19 @@ import 'package:map_picker/map_picker.dart'; //
 //dev.log
 import 'dart:developer' as dev;
 
-class ShopRegisterPage extends StatefulWidget {
-  const ShopRegisterPage({Key? key}) : super(key: key);
+import 'dart:convert';
+import 'dart:math';
 
+import 'package:flutter/services.dart';
+import 'package:velocity_x/velocity_x.dart';
+// import 'applogo.dart';
+// import 'loginPage.dart';
+import 'package:http/http.dart' as http;
+import '../config.dart';
+
+import 'dart:developer' as dev;
+
+class ShopRegisterPage extends StatefulWidget {
   @override
   State<ShopRegisterPage> createState() => _ShopRegisterPageState();
 }
@@ -14,6 +24,7 @@ class ShopRegisterPage extends StatefulWidget {
 class _ShopRegisterPageState extends State<ShopRegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _ownerNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _categoriesController = TextEditingController();
@@ -21,8 +32,10 @@ class _ShopRegisterPageState extends State<ShopRegisterPage> {
   final TextEditingController _businessTypeController = TextEditingController();
   final TextEditingController _openingTimeController = TextEditingController();
   final TextEditingController _closingTimeController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final int _photoCount = 0;
-  final LatLng? _selectedLocation = null;
+  LatLng? selectedLocation = null;
 
   /*
 
@@ -84,32 +97,71 @@ class _ShopRegisterPageState extends State<ShopRegisterPage> {
   }*/
   void registerShop() async {
     if (_nameController.text.isNotEmpty &&
+        _ownerNameController.text.isNotEmpty &&
         _emailController.text.isNotEmpty &&
         _locationController.text.isNotEmpty &&
         _categoriesController.text.isNotEmpty &&
         _descriptionController.text.isNotEmpty &&
         _businessTypeController.text.isNotEmpty &&
         _openingTimeController.text.isNotEmpty &&
-        _closingTimeController.text.isNotEmpty) {
+        _closingTimeController.text.isNotEmpty &&
+        _usernameController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty) {
       // Create a shop account
     }
     var regbody = {
-      "ownerName": _nameController.text,
-      "shopName": _locationController.text,
-      "address": _categoriesController.text,
-      "phoneNumber": _descriptionController.text,
-      "longitude": _businessTypeController.text,
-      "latitude": _openingTimeController.text,
+      "email": _usernameController.text,
+      "password": _passwordController.text,
+      "userType": "shop"
     };
+    var shopBody = {
+      "ownerName": _ownerNameController.text,
+      "shopName": _nameController.text,
+      "email": _emailController.text,
+      "location": _locationController.text,
+      "categories": _categoriesController.text,
+      "description": _descriptionController.text,
+      "businessType": _businessTypeController.text,
+      "openingTime": _openingTimeController.text,
+      "closingTime": _closingTimeController.text,
+      "username": _usernameController.text,
+      
+    };
+    dev.log(Uri.parse(registration).toString());
+    var response = await http.post(Uri.parse(registration),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(regbody));
+    var shopResponse = await http.post(Uri.parse(addShop),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(shopBody));
+
+
+    dev.log("regbody > " + regbody.toString());
+    dev.log("shopbody > " + shopBody.toString());
+    dev.log("request for registration sent successfully");
+
+    var jsonResponse = jsonDecode(response.body);
+    var jsonShopResponse = jsonDecode(shopResponse.body);
+    dev.log("response body > " + jsonResponse.toString());
+    dev.log("response body > " + jsonShopResponse.toString());
+    dev.log(jsonResponse['status'].toString() + " " + jsonShopResponse['status'].toString());  
+
+    if (jsonResponse['status'] && jsonShopResponse['status']) {
+      Navigator.pushNamed(context, 'shop_dashboard');
+
+    } else {
+      dev.log("Something Went Wrong");
+    }
+
   }
 
-  void _showMapPicker() {
-    // Implement your logic for showing the map picker here
-  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return 
+    
+    Scaffold(
       appBar: AppBar(
         title: const Text('Sign Up as Shop'),
       ),
@@ -133,23 +185,109 @@ class _ShopRegisterPageState extends State<ShopRegisterPage> {
                   children: [
                     Expanded(
                       child: TextFormField(
+
                         controller: _locationController,
+                        //readOnly: true,
+                        
                         decoration: const InputDecoration(
                           labelText: 'Location',
                           suffixIcon: Icon(Icons.place, color: Colors.red),
+                          
                         ),
                         onTap: () {
-                          // Show map picker
-                          _showMapPicker();
+                          void _showMapPicker() {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                LatLng?
+                                    selectedLocation; // Variable to store the selected location coordinates
+
+                                return StatefulBuilder(
+                                  builder: (BuildContext context,
+                                      StateSetter setState) {
+                                    return Container(
+                                      height: 400,
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            child: GoogleMap(
+                                              initialCameraPosition:
+                                                  CameraPosition(
+                                                target: LatLng(
+                                                    37.42796133580664,
+                                                    -122.085749655962),
+                                                zoom: 15,
+                                              ),
+                                              onTap: (LatLng? location) {
+                                                Set<Marker> markers = {}; // Define the markers variable
+                                                markers.clear(); // Clear the markers
+                                                if (location !=
+                                                    null) {
+                                                  // If a location was previously selected, add a marker at that location
+                                                  markers.add(
+                                                    Marker(
+                                                      markerId: MarkerId(
+                                                          'selectedLocation'),
+                                                      position: LatLng(location.latitude,location.longitude),
+                                                    ),
+                                                  );
+                                                }
+                                                
+                                                setState(() {
+                                                  selectedLocation = location;
+                                                });
+
+                                                // Add the following code to show a marker at the selected location
+                                                
+
+                                                // Rest of the code...
+                                                setState(() {
+                                                  selectedLocation = location;
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              
+                                              IconButton(
+                                                onPressed: () {
+                                                  if (selectedLocation !=
+                                                      null) {
+                                                    // Save button
+                                                    // Implement your logic here
+                                                    Navigator.pop(context);
+                                                  }
+                                                },
+                                                icon: Icon(Icons.save),
+                                              ),
+                                              IconButton(
+                                                onPressed: () {
+                                                  // Cancel button
+                                                  // Implement your logic here
+                                                  Navigator.pop(context);
+                                                },
+                                                icon: Icon(Icons.cancel),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          }
+
+                          //_showMapPicker();
+                          selectedLocation = LatLng(5.42796133580664, 80.085749655962);
+                          
+                          dev.log("location clicked" + selectedLocation.toString() );
                         },
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        // Show map picker
-                        _showMapPicker();
-                      },
-                      icon: const Icon(Icons.place, color: Colors.red),
                     ),
                   ],
                 ),
@@ -157,7 +295,7 @@ class _ShopRegisterPageState extends State<ShopRegisterPage> {
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Name',
+                    labelText: 'Shop Name',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -166,6 +304,22 @@ class _ShopRegisterPageState extends State<ShopRegisterPage> {
                     return null;
                   },
                 ),
+                // ownername
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _ownerNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Owner Name',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter owner name';
+                    }
+                    return null;
+                  },
+                ),
+                
+                
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _emailController,
@@ -256,11 +410,40 @@ class _ShopRegisterPageState extends State<ShopRegisterPage> {
                     ),
                   ],
                 ),
+                // username and password
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a username';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a password';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // Handle registration logic here
+                      // Handle registration logic
+                      registerShop();
                     }
                   },
                   child: const Text('Register'),
@@ -273,13 +456,13 @@ class _ShopRegisterPageState extends State<ShopRegisterPage> {
                       onPressed: () {
                         Navigator.pushNamed(context, '/');
                       },
-                      child: const Text('Already have an account? Login'),
+                      child: const Text(' Login'),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/customer_signup');
                       },
-                      child: const Text('Sign up as a customer'),
+                      child: const Text('customer signup'),
                     ),
                   ],
                 ),
@@ -288,6 +471,7 @@ class _ShopRegisterPageState extends State<ShopRegisterPage> {
           ),
         ),
       ),
-    );
+    )
+    ;
   }
 }

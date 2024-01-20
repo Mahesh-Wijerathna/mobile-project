@@ -16,5 +16,7 @@ final getItems = url + 'getItemsInshop';
 
 final addCustomer = url + 'createCustomer';
 
+final getItemToCustomer = url + 'getItemsWithName';
+
 
 

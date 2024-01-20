@@ -7,19 +7,23 @@ import 'pages/customer.signup.dart';
 import 'pages/customer.dashboard.dart';
 import 'pages/shop.signup.dart';
 import 'pages/shop.dashboard.dart';
+import 'pages/item.add.dart';
+
 
 void main() async {
   dev.log('This is main function');
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  runApp(const MyApp(
-    token: "jghhhfj", //  prefs.getString('token'),
+  runApp(MyApp(
+    token: prefs.getString('token'),
   ));
 }
 
 class MyApp extends StatelessWidget {
-  final String token;
-  const MyApp({
+  var id;
+  final token;
+  //final shopid;
+  MyApp({
     required this.token,
     Key? key,
   }) : super(key: key);
@@ -27,28 +31,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Store Locator',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       routes: {
-        '/': (context) => const LoginPage(),
+        //'/': (context) => CustomerDashboardPage(),
+        '/': (context) => LoginPage(),
         // customer signup page
-        '/customer_signup': (context) => const RegisterPage(),
+        '/customer_signup': (context) => RegisterPage(),
         // shop signup page
-        '/shop_signup': (context) => const ShopRegisterPage(),
+        '/shop_signup': (context) => ShopRegisterPage(),
         // customer dashboard page
         '/customer_dashboard': (context) => CustomerDashboardPage(),
-
-        // (token != null && (JwtDecoder.isExpired(token)) != false)
-        //   ? const CustomerDashboardPage();
-        //   : const LoginPage());
-
         // shop dashboard page
-        '/shop_dashboard': (context) => ShopDashboard(shopId: "ffdsf"),
-        // Only include '/signup' if you create the SignupPage class:
-        // '/signup': (context) => RegisterShopPage(),
-        // Add routes for other pages as needed
+        '/shop_dashboard': (context) => ShopDashboard(shopId: "65a9d9388ed17b6d45c3bb48"),
+        //item add page
+        '/item_add': (context) => AddItemPage(shopId: "65a9d9388ed17b6d45c3bb48"),
       },
     );
   }

@@ -54,11 +54,13 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  
+  # flutter_polyline_points:
   google_maps_flutter: 
+  # flutter_google_maps:
   time_picker_widget:
   flutter_datetime_picker:
   map_picker:
+  # location:
   flutter_lints: ^2.0.0
 
 # For information on the generic Dart part of this file, see the

@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import "package:shared_preferences/shared_preferences.dart";
+import 'package:store_locator/main.dart';
+
 import 'dart:developer' as dev;
 // ignore: depend_on_referenced_packages
 
 //import 'package:velocity_x/velocity_x.dart';
 import 'package:http/http.dart' as http;
 import '../config.dart';
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
 
-  
+class LoginPage extends StatefulWidget {
+  //const LoginPage({Key? key}) : super(key: key);
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -19,11 +21,10 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   //bool _isNotValidate = false;
-  late  SharedPreferences prefs;
+  late SharedPreferences prefs;
 
   @override
   void initState() {
-    
     super.initState();
     initSharedPref();
   }
@@ -33,7 +34,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void loginUser() async {
-    if (usernameController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+    if (usernameController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty) {
       var reqBody = {
         "email": usernameController.text,
         "password": passwordController.text
@@ -50,29 +52,40 @@ class _LoginPageState extends State<LoginPage> {
         var myToken = jsonResponse['token'];
         var userType = jsonResponse['userType'];
         prefs.setString('token', myToken);
-        // if(userType == 'shop')
+        if (userType == 'shop')
+          Navigator.pushNamed(context, '/shop_dashboard',
+              arguments: '65a9d9388ed17b6d45c3bb48');
+
         // Navigator.push(context,
         //     MaterialPageRoute(builder: (context) => Dashboard(token: myToken)));
-        // if(userType == 'customer')
+        if (userType == 'customer')
+          Navigator.pushNamed(context, '/customer_dashboard');
         // Navigator.push(context,
         //     MaterialPageRoute(builder: (context) => CDashboard(token: myToken)
         //     // Dashboard(token: myToken)
         //     ));
       } else {
-        print('Something went wrong');
+        dev.log('Something went wrong');
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(15.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              'Welcome Back',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
             TextFormField(
               controller: usernameController,
               decoration: const InputDecoration(
@@ -81,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 20),
             TextFormField(
-              controller: usernameController,
+              controller: passwordController,
               obscureText: true,
               decoration: const InputDecoration(
                 labelText: 'Password',
@@ -94,6 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                 // You'll need to implement this part based on your backend setup
                 // It might involve making an HTTP request to an API endpoint
                 // and handling the response accordingly
+                loginUser();
                 dev.log("login button pressed");
               },
               child: const Text('Login'),

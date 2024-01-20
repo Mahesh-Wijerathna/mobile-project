@@ -1,22 +1,17 @@
 
-const ToDoModel = require("../models/todo.model");
-const ItemModel = require("../models/Item.model");
 const ShopModel = require("../models/shop.model");
 const CustomerModel = require("../models/customer.model");
 
 
 // class for shop
 class CustomerService{
-    static async createCustomer(name,address,phoneNumber,longitude,latitude,username,password){
+    static async createCustomer(name,address,phoneNumber,username){
             const createCustomer = new CustomerModel({
               
                 name,
                 address,
                 phoneNumber,
-                longitude,  
-                latitude,
-                username,
-                password
+                username
 
             });
             return await createCustomer.save();
@@ -33,15 +28,15 @@ class CustomerService{
 
     // get shop deatails with id as a parameter
      
-    static async getShop(shopId){
-      const shop = await ShopModel.findById(shopId)
-      return shop;
-    }
+    // static async getShop(shopId){
+    //   const shop = await ShopModel.findById(shopId)
+    //   return shop;
+    // }
 
-    static async getSearchedShopList(userId){
-        const shopList = await ShopModel.find({userId})
-        return shopList;
-    }
+    // static async getSearchedShopList(userId){
+    //     const shopList = await ShopModel.find({userId})
+    //     return shopList;
+    // }
 
     static async updateShop(id, ownerName,shopName,address,phoneNumber,longitude,latitude) {
         const UpdatedShop = await ShopModel.findByIdAndUpdate(id, {
@@ -64,23 +59,26 @@ class CustomerService{
 
     
 
-    static async updateToDo(id, title, description) {
+    // static async updateToDo(id, title, description) {
 
     
-      try {
-        const updatedTodo = await ToDoModel.findByIdAndUpdate(id, {
-          title: title,
-          description: description
-        }, {
-          new: true // Return the updated document
-        });
+    //   try {
+    //     const updatedTodo = await ToDoModel.findByIdAndUpdate(id, {
+    //       title: title,
+    //       description: description
+    //     }, {
+    //       new: true // Return the updated document
+    //     });
     
-        return updatedTodo;
-      } catch (error) {
-        console.error("Error updating:", error);
-        throw error; // Rethrow the error for further handling
-      }
-     }}
+    //     return updatedTodo;
+    //   } catch (error) {
+    //     console.error("Error updating:", error);
+    //     throw error; // Rethrow the error for further handling
+    //   }
+    //  }
+    
+    
+    }
 
 
 

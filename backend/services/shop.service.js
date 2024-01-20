@@ -35,6 +35,14 @@ class ShopService{
         return await ShopModel.find();
       }
 
+      // get shop by id
+      static async getShopById(id){
+        return await ShopModel.findById(id);
+      }
+
+
+
+
     }
 
   

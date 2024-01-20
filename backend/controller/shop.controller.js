@@ -82,3 +82,22 @@ exports.getShop = async (req, res, next) => {
     next(error);
   }
 };
+
+// get shop by id
+
+exports.getShopById = async (req, res, next) => {
+  console.log("getShopById in controller in backend");
+  try {
+    const {
+      id
+    } = req.query;
+    const shopData = await ShopService.getShopById(id);
+    res.json({
+      status: true,
+      success: shopData
+    });
+  } catch (error) {
+    console.log(error, 'err---->');
+    next(error);
+  }
+};

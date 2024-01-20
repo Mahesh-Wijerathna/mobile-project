@@ -1,40 +1,31 @@
+const db = require('../config/db');
+//const UserModel = require("./user.model");
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-// Define the customer schema
-const customerSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true, // Ensure unique usernames
-    trim: true, // Remove extra whitespace
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-  },
-  phone: {
-    type: String,
-  },
-  favoriteShops: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Shop', // Reference the Shop model
+const CustomerSchema = new Schema({
+    
+    name: {
+        type: String,
+        required: true
     },
-  ],
-  favoriteItems: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Item', // Reference the Item model
+    address: {
+        type: String,
+        required: true
     },
-  ],
-});
+    phoneNumber:{
+        type: String,
+        required: true
+    },
+    
+    username:{
+        type:String,
+        required:true
+    },
+    
+    
+},{timestamps:true});
 
-// Export the Mongoose model
-module.exports = mongoose.model('Customer', customerSchema);
+const CustomerModel = db.model('customer',CustomerSchema);
+module.exports = CustomerModel;
+
